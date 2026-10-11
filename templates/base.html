@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content= "width=device-width,initial-scale=1.0">
+   <title>  {% block title %} Quick Cafe Canteen {% endblock %}</title>  
+
+    <link href="{{url_for('static',filename='css/bootstrap.min.css')}}" rel="stylesheet">
+    <link href="{{url_for('static',filename='css/style.css')}}" rel="stylesheet">
+    </head>
+
+    <body>
+      {% include 'nav.html' %} 
+
+      <div class="container">
+        
+
+            {% block contents %}
+            {% endblock %}
+        </div>
+        
+        <script src="/static/js/bootstrap.min.js" ></script>
+        <script src="/static/js/main.js">  </script>
+
+    </body>
+</html>

@@ -1,0 +1,34 @@
+<nav class="navbar navbar-expand-lg bg-info shadow-sm fixed-top  m-0 px-5 ">
+  <div class="container-fluid">
+    
+    <a class="navbar-brand" href="#">
+      <img src="static/logo.png" alt="logo" width="90" height="90" class="rounded-circle ">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <form action="{{ url_for('menu') }}" method="GET" class="search-form">
+        <input type="text" name="search" placeholder="Search food items." required>
+        <button type="submit">Search</button>
+    </form>
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        
+        <li class="nav-item">
+          <a class="nav-link" href="/about">About</a>
+        </li>
+         <li class="nav-item">
+          <a class="nav-link" href="/menu">Menu</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/category">Category</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/order">Order</a>
+        </li>
+
+      </ul>
+     
+    </div>
+  </div>
+</nav>
