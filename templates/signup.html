@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block contents %}
+<div class="container m-5 d-flex justify-content-center align-items-center py-5" style="min-height: 80vh;">
+    <div class="card mt-5 p-4 shadow-lg border-0" style="width: 100%; max-width: 420px; border-radius: 16px;">
+        <h2 class="text-center font-weight-bold mb-4">Create a new account</h2>
+
+        <form method="POST" action="{{ url_for('signup') }}">
+            <!-- Full Name -->
+            <div class="form-group mb-3">
+                <input type="text" name="full_name" class="form-control py-2" placeholder="Full Name"
+                    style="border-radius: 8px;" required>
+            </div>
+
+            <!-- Role Selection -->
+            <div class="form-group mb-3">
+                <select name="role" class="form-control py-2" style="border-radius: 8px;" required>
+                    <option value="" disabled selected>Select role</option>
+                    <option value="Customer">Customer</option>
+                    <option value="staff">Staff</option>
+                    <option value="other">Admin</option>
+                </select>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group mb-3">
+                <input type="email" name="email" class="form-control py-2" placeholder="Email"
+                    style="border-radius: 8px;" required>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group mb-3">
+                <input type="password" name="password" class="form-control py-2" placeholder="Password"
+                    style="border-radius: 8px;" required>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="form-group mb-4">
+                <input type="password" name="confirm_password" class="form-control py-2" placeholder="Confirm password"
+                    style="border-radius: 8px;" required>
+            </div>
+
+            <!-- Sign Up Button -->
+            <div class="d-grid mb-3">
+                <button class="btn btn-primary btn-block py-2" type="submit"
+                    style="border-radius: 20px; font-weight: 500; background-color: #0000ff;">Sign Up</button>
+            </div>
+
+            <!-- Login Link -->
+            <div class="text-center mt-3 text-secondary">
+                <small>Already have an account? <a href="{{ url_for('login') }}"
+                        class="text-primary text-decoration-underline">Login</a></small>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

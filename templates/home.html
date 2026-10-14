@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block contents %}
+
+<div id="carouselStacked" class="carousel slide carousel-fade " data-bs-ride="carousel"
+    style="height: 100vh; width: 100vw; margin: 0; padding: 0;">
+    <div class="carousel-inner h-100 position-relative">
+
+
+        <div class="carousel-item active h-100">
+            <!-- Full Screen Background Image -->
+            <img src="static/images/fooditem.jpg" class="d-block w-100 m-0  p-0 h-100"
+                style="object-fit: cover; object-position: center;" alt="Food Banner">
+
+            <!-- Dark Overlay for Readability -->
+            <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50"></div>
+
+            <!-- Centered Overlay Content -->
+            <div class="position-absolute top-50 start-50 translate-middle text-center text-white px-3 w-100"
+                style="max-width: 900px; z-index: 2;">
+
+                <!-- Sub-heading -->
+                <p class="text-uppercase fw-bold mb-3 tracking-widest"
+                    style="font-size: clamp(0.8rem, 1.2vw, 1.1rem); letter-spacing: 3px;">
+                    WELCOME TO Quick Cafe Canteen
+                </p>
+
+                <!-- Main Heading -->
+                <h1 class="fw-bolder mb-4"
+                    style="font-size: clamp(2.2rem, 5vw, 4.5rem); font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.15; text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);">
+                    Order food , check menu All from one place
+                    <br>
+                    Digital token generator system
+                </h1>
+              <a href="/menu"><button class="btn btn-primary">Explore Menu</button></a>
+
+                <!-- Reservation Button -->
+                
+
+            </div>
+        </div></div>
+
+
+{% endblock %}

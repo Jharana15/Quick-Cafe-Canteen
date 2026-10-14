@@ -1,5 +1,420 @@
 {% extends 'base.html' %}
-{% block title %}Menu {% endblock %}
+{% block title %}Home Page{% endblock %}
+
 {% block contents %}
-<p class="pt-5 mt-5"> hloo this is  menu</p>
+
+<div class="d-flex justify-content-center m-5 p-2">
+    <ul class="nav nav-pills gap-2 bg-white m-5 p-2 rounded-pill shadow-sm" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active rounded-pill px-4 py-2 fw-semibold" id="pills-all-tab" data-bs-toggle="pill"
+                data-bs-target="#pills-all" type="button" role="tab" aria-controls="pills-all" aria-selected="true">All Items</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill px-4 py-2 fw-semibold" id="pills-breakfast-tab" data-bs-toggle="pill"
+                data-bs-target="#pills-breakfast" type="button" role="tab" aria-controls="pills-breakfast"
+                aria-selected="false">Breakfast</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill px-4 py-2 fw-semibold" id="pills-lunch-tab" data-bs-toggle="pill"
+                data-bs-target="#pills-lunch" type="button" role="tab" aria-controls="pills-lunch"
+                aria-selected="false">Lunch</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill px-4 py-2 fw-semibold" id="pills-beverage-tab" data-bs-toggle="pill"
+                data-bs-target="#pills-beverage" type="button" role="tab" aria-controls="pills-beverage"
+                aria-selected="false">Beverage</button>
+        </li>
+    </ul>
+</div>
+
+<div class="tab-content container mb-5" id="pills-tabContent">
+    
+    <!-- 1. ALL ITEMS TAB -->
+    <div class="tab-pane fade show active" id="pills-all" role="tabpanel" aria-labelledby="pills-all-tab" tabindex="0">
+        <div class="row g-3">
+            
+            <!-- Biryani -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="briyani" class="d-inline-block mb-3">
+                        <img src="/static/images/briyani.jpg" alt="Biryani" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Biryani</b><br>Rs. 160</span>
+                    <a href="briyani" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <!-- Chowmein -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="chawmein" class="d-inline-block mb-3">
+                        <img src="/static/images/chowmin.jpg" alt="Chowmein" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Chowmein</b><br>Rs. 160</span>
+                    <a href="chawmein" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <!-- Veg Khana Set -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="veg-khana" class="d-inline-block mb-3">
+                        <img src="/static/images/veg khana set.pg.jpg" alt="Veg Khana Set" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Veg-Khana Set</b><br>Rs. 360</span>
+                    <a href="veg-khana" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <!-- French Fries -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="french-fries" class="d-inline-block mb-3">
+                        <img src="/static/images/french fries.jpg" alt="French Fries" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>French Fries</b><br>Rs. 160</span>
+                    <a href="french-fries" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <!-- Green Tea -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="green-tea" class="d-inline-block mb-3">
+                        <img src="/static/images/greentea.jpg" alt="Green Tea" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Green Tea</b><br>Rs. 120</span>
+                    <a href="green-tea" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <!-- Momo -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="momo" class="d-inline-block mb-3">
+                        <img src="/static/images/momo.jpg" alt="Momo" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>MOMO</b><br>Rs. 160</span>
+                    <a href="momo" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <!-- Burger -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="burger" class="d-inline-block mb-3">
+                        <img src="/static/images/burger.jpg" alt="Burger" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Burger</b><br>Rs. 260</span>
+                    <a href="burger" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <!-- Cheesy Chicken -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="cheesy-chicken" class="d-inline-block mb-3">
+                        <img src="/static/images/cheesy chicken.png" alt="Cheesy Chicken" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Cheesy Chicken</b><br>Rs. 360</span>
+                    <a href="cheesy-chicken" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <!-- Pizza -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="pizza" class="d-inline-block mb-3">
+                        <img src="/static/images/pizza.jpg" alt="Pizza" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Pizza</b><br>Rs. 460</span>
+                    <a href="pizza" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <!-- Cappuccino -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="cappuccino" class="d-inline-block mb-3">
+                        <img src="/static/images/Cappuccino.jpg" alt="Cappuccino" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Cappuccino</b><br>Rs. 160</span>
+                    <a href="cappuccino" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <!-- Thakali Set -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="thakali" class="d-inline-block mb-3">
+                        <img src="/static/images/nepali thakali set.jpg" alt="Thakali Set" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Thakali Set</b><br>Rs. 560</span>
+                    <a href="thakali" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <!-- Samosa -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="samosa" class="d-inline-block mb-3">
+                        <img src="/static/images/samosa.jpg" alt="Samosa" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Samosa</b><br>Rs. 160</span>
+                    <a href="samosa" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <!-- Veg Rice -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="veg-rice" class="d-inline-block mb-3">
+                        <img src="/static/images/veg_rice.jpg" alt="Veg Rice" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Veg-Rice</b><br>Rs. 160</span>
+                    <a href="veg-rice" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <!-- Coca-Cola -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="cocacola" class="d-inline-block mb-3">
+                        <img src="/static/images/cocacola.png" alt="Coca Cola" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Coca-Cola</b><br>Rs. 160</span>
+                    <a href="cocacola" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <!-- Fanta -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="fanta" class="d-inline-block mb-3">
+                        <img src="/static/images/fanta.png" alt="Fanta" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Fanta</b><br>Rs. 160</span>
+                    <a href="fanta" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <!-- Mountain Dew -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="dew" class="d-inline-block mb-3">
+                        <img src="/static/images/dew.png" alt="Mountain Dew" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Mountain Dew</b><br>Rs. 160</span>
+                    <a href="dew" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <!-- Sprite -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="sprite" class="d-inline-block mb-3">
+                        <img src="/static/images/sprite.png" alt="Sprite" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Sprite</b><br>Rs. 160</span>
+                    <a href="sprite" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <!-- Sabji Roti -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="sabji-roti" class="d-inline-block mb-3">
+                        <img src="/static/images/sabji roti.jpg" alt="Sabji Roti" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Sabji Roti</b><br>Rs. 160</span>
+                    <a href="sabji-roti" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 2. BREAKFAST TAB -->
+    <div class="tab-pane fade" id="pills-breakfast" role="tabpanel" aria-labelledby="pills-breakfast-tab" tabindex="0">
+        <div class="row g-3">
+            
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="pizza" class="d-inline-block mb-3">
+                        <img src="/static/images/pizza.jpg" alt="Pizza" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Pizza</b><br>Rs. 460</span>
+                    <a href="pizza" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="burger" class="d-inline-block mb-3">
+                        <img src="/static/images/burger.jpg" alt="Burger" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Burger</b><br>Rs. 260</span>
+                    <a href="burger" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="chawmein" class="d-inline-block mb-3">
+                        <img src="/static/images/chowmin.jpg" alt="Chowmein" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Chowmein</b><br>Rs. 160</span>
+                    <a href="chawmein" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="samosa" class="d-inline-block mb-3">
+                        <img src="/static/images/samosa.jpg" alt="Samosa" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Samosa</b><br>Rs. 160</span>
+                    <a href="samosa" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="momo" class="d-inline-block mb-3">
+                        <img src="/static/images/momo.jpg" alt="Momo" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>MOMO</b><br>Rs. 160</span>
+                    <a href="momo" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 3. LUNCH TAB -->
+    <div class="tab-pane fade" id="pills-lunch" role="tabpanel" aria-labelledby="pills-lunch-tab" tabindex="0">
+        <div class="row g-3">
+            
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="sabji-roti" class="d-inline-block mb-3">
+                        <img src="/static/images/sabji roti.jpg" alt="Sabji Roti" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Sabji Roti</b><br>Rs. 160</span>
+                    <a href="sabji-roti" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="briyani" class="d-inline-block mb-3">
+                        <img src="/static/images/briyani.jpg" alt="Biryani" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Biryani</b><br>Rs. 160</span>
+                    <a href="briyani" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="veg-khana" class="d-inline-block mb-3">
+                        <img src="/static/images/veg khana set.pg.jpg" alt="Veg Khana Set" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Veg-Khana Set</b><br>Rs. 360</span>
+                    <a href="veg-khana" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="thakali" class="d-inline-block mb-3">
+                        <img src="/static/images/nepali thakali set.jpg" alt="Thakali Set" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Nepali Thakali Set</b><br>Rs. 560</span>
+                    <a href="thakali" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="veg-rice" class="d-inline-block mb-3">
+                        <img src="/static/images/veg_rice.jpg" alt="Veg Rice" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Veg-Rice</b><br>Rs. 160</span>
+                    <a href="veg-rice" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 4. BEVERAGE TAB -->
+    <div class="tab-pane fade" id="pills-beverage" role="tabpanel" aria-labelledby="pills-beverage-tab" tabindex="0">
+        <div class="row g-3">
+            
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="cappuccino" class="d-inline-block mb-3">
+                        <img src="/static/images/Cappuccino.jpg" alt="Cappuccino" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Cappuccino</b><br>Rs. 160</span>
+                    <a href="cappuccino" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="green-tea" class="d-inline-block mb-3">
+                        <img src="/static/images/greentea.jpg" alt="Green Tea" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Green Tea</b><br>Rs. 120</span>
+                    <a href="green-tea" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="sprite" class="d-inline-block mb-3">
+                        <img src="/static/images/sprite.png" alt="Sprite" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Sprite</b><br>Rs. 160</span>
+                    <a href="sprite" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="fanta" class="d-inline-block mb-3">
+                        <img src="/static/images/fanta.png" alt="Fanta" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Fanta</b><br>Rs. 160</span>
+                    <a href="fanta" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="dew" class="d-inline-block mb-3">
+                        <img src="/static/images/dew.png" alt="Mountain Dew" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Mountain Dew</b><br>Rs. 160</span>
+                    <a href="dew" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="menu-card bg-white rounded-4 shadow-sm p-4 text-center d-flex flex-column align-items-center justify-content-between h-100">
+                    <a href="cocacola" class="d-inline-block mb-3">
+                        <img src="/static/images/cocacola.png" alt="Coca-Cola" class="rounded-circle img-fluid shadow-sm" style="width: 200px; height: 170px; object-fit: cover;">
+                    </a>
+                    <span><b>Coca-Cola</b><br>Rs. 160</span>
+                    <a href="cocacola" class="btn btn-primary px-4 py-2 rounded-3 fw-medium mt-3">Order</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
 {% endblock %}

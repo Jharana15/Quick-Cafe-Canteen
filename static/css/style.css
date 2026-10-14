@@ -1,4 +1,39 @@
 body{
     padding: 10px;
     margin: 10px;
+    background-color: rgb(244, 244, 237);
+    
+}
+.menu-card{
+    flex-direction:column;
+   display:flex;
+   border-radius:5px;
+    /* box-shadow:  rgb(84, 33, 33); */
+    /* background-color:rgb(215, 232, 180); */
+    border:1px solid black;
+   
+     width:100%;
+     overflow:hidden;
+     height:320px;
+     
+         
+}
+.menu-card img{
+    width:100%;
+    object-fit:cover;
+    height:250px;
+}
+.menu-card span{
+    display:block;
+    flex-wrap:wrap;
+    text-align:center;
+   
+}
+input,select{
+    width: 100%;
+    padding: 10px;
+    margin:10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  box-sizing:border-box;
 }

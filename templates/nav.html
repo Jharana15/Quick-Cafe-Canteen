@@ -10,22 +10,28 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <form action="{{ url_for('menu') }}" method="GET" class="search-form">
         <input type="text" name="search" placeholder="Search food items." required>
-        <button type="submit">Search</button>
+        
     </form>
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+         <li class="nav-item">
+          <a class="nav-link" href="/home">Home</a>
+        </li>
+
         
         <li class="nav-item">
-          <a class="nav-link" href="/about">About</a>
-        </li>
-         <li class="nav-item">
           <a class="nav-link" href="/menu">Menu</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/category">Category</a>
+         <li class="nav-item">
+          <a class="nav-link" href="/about">About</a>
         </li>
+        
         <li class="nav-item">
           <a class="nav-link" href="/order">Order</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/account">Account</a>
+        </li>
+
 
       </ul>
      

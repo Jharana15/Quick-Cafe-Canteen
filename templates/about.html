@@ -1,5 +1,31 @@
 {% extends 'base.html' %}
-{% block title %}Home {% endblock %}
+
+{% block title %}About Quick Cafe{% endblock %}
+
 {% block contents %}
-<h4 class="pt-5 mt-5"> About the cafe canteen</h4>
+<div class="container pt-5 mt-5">
+    <!-- Heading -->
+    <h3 class="font-weight-bold  m-5" style="color: #f39c12;">About Quick Cafe</h3>
+
+    <!-- Cyan Banner (Without Slider Arrows) -->
+    <div class="p-4 text-black rounded shadow-sm mb-5" style="background-color: #f1d3b6; min-height: 180px;">
+        <h5 class="font-weight-bold mb-2">Quick Cafe</h5>
+        <p class="mb-2" style="font-size: 15px;">A fast and convenient coffee and food ordering system designed to
+            eliminate long lines and save your precious time.</p>
+        <p class="mb-2" style="font-size: 15px;">Moving beyond traditional manual ordering, this platform lets you
+            browse beverages, explore food categories, and place digital orders seamlessly.</p>
+        <p class="mb-0" style="font-size: 15px;">It is your personalized cafe dining experience.</p>
+    </div>
+
+    <!-- Our Features Section -->
+    <h5 class="font-weight-bold mb-3" style="color: #e26420;">Our Features</h5>
+    <div class="card p-4 text-black rounded shadow-sm border-0" style="max-width: 520px; background-color: #f1d3b6; border-radius: 8px;">
+        <ul class="list-unstyled mb-0" style="line-height: 1.8;">
+            <li class="mb-2">&#8226; Fast food & coffee pre-ordering</li>
+            <li class="mb-2">&#8226; Browse menu categories and prices</li>
+            <li class="mb-2">&#8226; Real-time order tracking</li>
+            <li class="mb-0">&#8226; Admin and Staff management dashboard</li>
+        </ul>
+    </div>
+</div>
 {% endblock %}

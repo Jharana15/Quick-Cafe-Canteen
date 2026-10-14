@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block contents %}
+<div class="container mt-5  d-flex justify-content-center align-items-center " style="min-height: 80vh;">
+    <div class="card mt-4 p-4 shadow-lg border-0" style="width: 100%; max-width: 420px; border-radius: 16px;">
+        <h2 class="text-center font-weight-bold mb-4">Login to Quick Cafe</h2>
+
+        <form method="POST">
+            <!-- Email Field -->
+            <div class="form-group mb-3 ">
+                <label for="inputEmail" class="form-label font-weight-normal text-secondary">Email address</label>
+                <input type="email" id="inputEmail" name="email" class="form-control py-2" style="border-radius: 8px;"
+                    required autofocus>
+            </div>
+
+            <!-- Password Field -->
+            <div class="form-group mb-4">
+                <label for="inputPassword" class="form-label font-weight-normal text-secondary">Password</label>
+                <input type="password" id="inputPassword" name="password" class="form-control py-2"
+                    style="border-radius: 8px;" required>
+            </div>
+            <!-- <div class="form-group mb-3 ">
+                <select name="role" required>
+                    <option value="disabled  selected">Select role</option>
+                     <option value="admin selected">Admin</optin>
+                    <option value="staff  selected">Chef</option>
+                    <option value="ceshair selected">ceshair</option>
+
+                </select>
+                
+            </div> -->
+
+            <!-- Login Button & Forgot Password Link -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <button class="btn btn-primary px-4 py-2" type="submit"
+                    style="border-radius: 20px; font-weight: 500;">Login</button>
+                <a href=" " class="text-primary text-decoration-none font-weight-normal">Forgot Password?</a>
+            </div>
+
+            <!-- Sign Up Option -->
+            <div class="text-center mt-3 text-secondary">
+                <small>Don't have an account? <a href="/signup" class="text-primary text-decoration-none">Sign up</a></small>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}
