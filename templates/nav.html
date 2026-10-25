@@ -1,38 +1,39 @@
-<nav class="navbar navbar-expand-lg bg-info shadow-sm fixed-top  m-0 px-5 ">
+<nav class="navbar navbar-expand-lg bg-info shadow-sm fixed-top m-0 px-5">
   <div class="container-fluid">
     
-    <a class="navbar-brand" href="#">
-      <img src="static/logo.png" alt="logo" width="90" height="90" class="rounded-circle ">
+    <a class="navbar-brand" href="{{ url_for('home') }}">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="logo" width="90" height="90" class="rounded-circle">
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <form action="{{ url_for('menu') }}" method="GET" class="search-form">
-        <input type="text" name="search" placeholder="Search food items." required>
-        
-    </form>
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-         <li class="nav-item">
-          <a class="nav-link" href="/home">Home</a>
-        </li>
+      
+      <!-- 👉 YOHI CHANGE GARYO: Menu page ma matra search bar render hunecha -->
+      {% if request.endpoint == 'menu' %}
+      <form action="{{ url_for('menu') }}" method="GET" class="search-form" onsubmit="return false;">
+          <input type="text" id="searchInput" name="search" placeholder="Search food items." autocomplete="off" required>
+      </form>
+      {% endif %}
 
+      <ul class="navbar-nav ms-auto fs-5 mb-2 mb-lg-0">
+        <li class="nav-item ">
+         <a class="nav-link" href="/home">Home</a>
+       </li>
+
+        <li class="nav-item">
+         <a class="nav-link" href="/menu">Menu</a>
+       </li>
+        <li class="nav-item">
+         <a class="nav-link" href="/about">About</a>
+       </li>
         
         <li class="nav-item">
-          <a class="nav-link" href="/menu">Menu</a>
-        </li>
-         <li class="nav-item">
-          <a class="nav-link" href="/about">About</a>
-        </li>
-        
-        <li class="nav-item">
-          <a class="nav-link" href="/order">Order</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/account">Account</a>
-        </li>
-
-
+         <a class="nav-link" href="/order">Order Items</a>
+       </li>
+        <!-- <li class="nav-item">
+         <a class="nav-link" href="/account">Account</a>
+       </li> -->
       </ul>
      
     </div>

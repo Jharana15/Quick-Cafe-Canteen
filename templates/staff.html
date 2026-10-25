@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPDTM - Kitchen Display</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+<div class="d-flex">
+    <nav id="sidebar">
+        <div class="sidebar-header d-flex align-items-center justify-content-between">
+            <span><i class="fa-solid fa-mug-hot me-2"></i>Quick Cafe</span>
+        </div>
+        <div class="nav-label mt-3">DASHBOARDS</div>
+        <ul class="list-unstyled mb-0">
+            <li class="active"><a href="{{ url_for('staff') }}"><i class="fa-solid fa-fire me-2"></i>Kitchen Staff</a></li>
+        </ul>
+        <hr class="dropdown-divider opacity-25">
+        <div class="nav-label">MENU</div>
+        <ul class="list-unstyled components">
+            <li {% if view == 'active' %}class="active"{% endif %}><a href="{{ url_for('staff') }}"><i class="fa-solid fa-fire me-2"></i>Active Orders</a></li>
+            <li {% if view == 'completed' %}class="active"{% endif %}><a href="{{ url_for('staff', view='completed') }}"><i class="fa-solid fa-circle-check me-2"></i>Completed Orders</a></li>
+            <li><a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+        </ul>
+    </nav>
+
+    <div id="content" class="w-100">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4">
+            <div class="container-fluid">
+                <h4 class="mb-0 fw-bold text-dark">Kitchen Order Display System (KDS)</h4>
+                <div class="d-flex align-items-center">
+                    <div class="me-3 text-end">
+                        <small class="text-muted d-block">Logged In User</small>
+                        <span class="fw-bold">{{ staff_user.name }}</span>
+                    </div>
+                    <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width:40px;height:40px;">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid p-4">
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+              {% endfor %}
+            {% endwith %}
+
+            {% if view == 'active' %}
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-fire text-danger me-2"></i>Live Kitchen Display System (KDS)</h5>
+                <span class="badge bg-danger fs-6"><i class="fa-solid fa-rotate me-1"></i>Auto Refresh: 20s</span>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-4"><div class="card-counter warning d-flex justify-content-between align-items-center"><div><span class="count-numbers">{{ counts['Pending'] }}</span><span class="count-name">New / Pending</span></div><i class="fa-solid fa-bell text-warning"></i></div></div>
+                <div class="col-md-4"><div class="card-counter primary d-flex justify-content-between align-items-center"><div><span class="count-numbers">{{ counts['Preparing'] }}</span><span class="count-name">Preparing</span></div><i class="fa-solid fa-fire-burner text-primary"></i></div></div>
+                <div class="col-md-4"><div class="card-counter success d-flex justify-content-between align-items-center"><div><span class="count-numbers">{{ counts['Ready'] }}</span><span class="count-name">Ready for Pickup</span></div><i class="fa-solid fa-bell-concierge text-success"></i></div></div>
+            </div>
+            {% else %}
+            <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-circle-check text-success me-2"></i>Completed Orders <small class="text-muted fw-normal">(latest 20)</small></h5>
+            {% endif %}
+
+            <div class="row g-3">
+                {% for g in orders %}
+                {% set color = {'Pending':'warning','Preparing':'primary','Ready':'success','Completed':'secondary'}[g.status] %}
+                <div class="col-md-6 col-xl-4">
+                    <div class="card border-{{ color }} border-{{ 1 if g.status == 'Completed' else 2 }} shadow-sm {{ 'opacity-75' if g.status == 'Completed' else '' }}">
+                        <div class="card-header bg-{{ color }} bg-opacity-10 d-flex justify-content-between align-items-center">
+                            <span class="badge bg-{{ color }} {{ 'text-dark' if g.status == 'Pending' else '' }} fs-6">Token {{ g.number }}</span>
+                            <small class="text-muted"><i class="fa-regular fa-clock me-1"></i>{{ g.age }}</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="fw-bold">{{ g.customer }}</span>
+                                <span class="badge bg-light text-dark border">{{ g.status }}</span>
+                            </div>
+                            <div class="small text-muted mb-2"><i class="fa-solid fa-hourglass-half me-1"></i>Pickup: {{ g.pickup }}</div>
+                            <h6 class="card-title fw-bold">Order Items:</h6>
+                            <ul class="list-unstyled {{ 'text-decoration-line-through' if g.status == 'Completed' else '' }}">
+                                {% for t in g.lines %}<li class="{{ '' if g.status == 'Completed' else 'fs-5' }}">{{ t.quantity }}x {{ t.name }}</li>{% endfor %}
+                            </ul>
+                            <hr>
+                            {% if g.next %}
+                            <form method="post" action="{{ url_for('staff_update_status', token_number=g.number) }}">
+                                <input type="hidden" name="status" value="{{ g.next[0] }}">
+                                <button class="btn btn-{{ color }} w-100 fw-bold {{ 'text-dark' if g.status == 'Pending' else '' }}">
+                                    {% if g.status == 'Pending' %}<i class="fa-solid fa-play me-1"></i>
+                                    {% elif g.status == 'Preparing' %}<i class="fa-solid fa-spinner fa-spin me-1"></i>
+                                    {% else %}<i class="fa-solid fa-check-circle me-1"></i>{% endif %}
+                                    {{ g.next[1] }}
+                                </button>
+                            </form>
+                            {% else %}
+                            <button class="btn btn-secondary w-100" disabled>Handed Over / Closed</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-12"><div class="text-center text-muted py-5">
+                    <i class="fa-solid fa-mug-hot fa-2x mb-2"></i><div>{{ 'No active orders right now.' if view == 'active' else 'No completed orders yet.' }}</div>
+                </div></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% if view == 'active' %}
+<script>setTimeout(function () { location.reload(); }, 20000);</script>
+{% endif %}
+</body>
+</html>

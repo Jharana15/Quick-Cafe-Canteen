@@ -1,5 +1,80 @@
 {% extends 'base.html' %}
-{% block title %}Order{% endblock %}
+{% block title %}Your Canteen Order{% endblock %}
+
 {% block contents %}
-<p class="pt-5 mt-5"> hloo this is  order list</p>
+<div class="container m-5 p-5 d-flex justify-content-center align-items-center my-5">
+    <!-- Main Order Card Box -->
+    <div class="card shadow-lg border-0 rounded-4 mt-5 p-3" style="width: 450px; background-color: #ffffff;">
+        <div class="card-body">
+
+            <!-- Header Title & Close/Back Icon -->
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                <h5 class="fw-bold mb-0 text-dark">
+                    <i class="fa-solid fa-basket-shopping text-warning me-2"></i> Your Canteen Order
+                </h5>
+                <a href="{{ url_for('order') }}" class="btn-close" aria-label="Close"></a>
+            </div>
+
+            <!-- Scrollable Area for Ordered Items -->
+            <div style="max-height: 250px; overflow-y: auto;" class="pe-1 mb-3">
+                {% if session.get('current_order') and session['current_order']|length > 0 %}
+                {% set ns = namespace(subtotal=0) %}
+                {% for item in session['current_order'] %}
+                {% set item_total = item.price * item.quantity %}
+                {% set ns.subtotal = ns.subtotal + item_total %}
+
+                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                    <div>
+                        <h6 class="fw-bold text-dark mb-1">{{ item.name | capitalize }}</h6>
+                        <small class="text-muted">Rs. {{ "%.2f"|format(item.price) }} × {{ item.quantity }}</small>
+                    </div>
+                    <div class="text-end">
+                        <span class="fw-semibold text-secondary">Rs. {{ "%.2f"|format(item_total) }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fa-solid fa-cart-shopping fa-2x text-muted mb-2"></i>
+                    <p class="text-muted mb-0">Your order list is empty.</p>
+                    <a href="{{ url_for('menu') }}" class="btn btn-sm btn-outline-warning mt-2">Browse Menu</a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Calculations (Subtotal, Fee, Total) -->
+            {% if session.get('current_order') and session['current_order']|length > 0 %}
+            {% set ns = namespace(subtotal=0) %}
+            {% for item in session['current_order'] %}
+            {% set ns.subtotal = ns.subtotal + (item.price * item.quantity) %}
+            {% endfor %}
+
+            <div class="mb-4 border-top pt-3">
+                <div class="d-flex justify-content-between text-muted mb-2">
+                    <span>Subtotal</span>
+                    <span class="fw-semibold">Rs. {{ "%.2f"|format(ns.subtotal) }}</span>
+                </div>
+                <div class="d-flex justify-content-between text-muted mb-2">
+                    <span>Digital Token Fee</span>
+                    <span class="text-success fw-bold">FREE</span>
+                </div>
+                <div class="d-flex justify-content-between text-dark fw-bold fs-5 mt-2">
+                    <span>Total Amount</span>
+                    <span style="color: lightskyblue !important;">Rs. {{ "%.2f"|format(ns.subtotal) }}</span>
+                </div>
+            </div>
+
+            <!-- Student Details Form to Place Order -->
+            <form method="POST" action="{{ url_for('place_order') }}">
+                <div class="mb-3">
+                    <input type="text" name="customer_name" class="form-control" placeholder="Customer Full Name"
+                        required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Place Token Order</button>
+            </form>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
 {% endblock %}

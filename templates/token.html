@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Digital Token{% endblock %}
+{% block contents %}
+<div class="container mt-5 p-4" style="max-width: 600px;">
+    <div class="card shadow mt-5 p-4 rounded-4 text-center">
+        <h3 class="text-success mb-3">🎉 Order Placed Successfully!</h3>
+        <h4 class="badge bg-dark fs-5 p-2 mb-4">Token Number: {{ token_number }}</h4>
+        
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Item Name</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in tokens %}
+                <tr>
+                    <td>{{ t.name }}</td>
+                    <td>{{ t.quantity }}</td>
+                    <td>Rs. {{ t.price * t.quantity }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <a href="{{ url_for('home') }}" class="btn btn-primary mt-3">Back to Home</a>
+    </div>
+</div>
+{% endblock %}

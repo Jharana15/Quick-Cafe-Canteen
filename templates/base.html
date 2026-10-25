@@ -3,24 +3,97 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content= "width=device-width,initial-scale=1.0">
-   <title> {% block title %} Quick Cafe Canteen {% endblock %}</title>  
+        <title> {% block title %} Quick Cafe Canteen {% endblock %}</title>  
+        <!-- funtion use garera static folder bata bootstrap ko css load garxa and pre-built design dinxa or layout -->
+        <link href="{{url_for('static',filename='css/bootstrap.min.css')}}" rel="stylesheet">
+        <!-- aaffno design lekhnu  -->
+        <link href="{{url_for('static',filename='css/style.css')}}" rel="stylesheet">
 
-    <link href="{{url_for('static',filename='css/bootstrap.min.css')}}" rel="stylesheet">
-    <link href="{{url_for('static',filename='css/style.css')}}" rel="stylesheet">
+        <!-- Cyan Blue Toast Notification Styles -->
+        <style>
+    .toast-container {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 99999;
+        pointer-events: auto; /* Clickable banauna */
+    }
+    .custom-alert-box {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: green;
+        color: white;
+        padding: 14px 20px;
+        border-radius: 4px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        font-family: Arial, sans-serif;
+        font-size: 15px;
+        min-width: 320px;
+        margin-bottom: 10px;
+        z-index: 100000;
+        pointer-events: auto; /* Clickable banauna */
+    }
+    .close-alert-btn {
+        background: transparent;
+        border: none;
+        color: #ffffff;
+        font-size: 22px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-left: 20px;
+        line-height: 1;
+        pointer-events: auto !important; /* Button ma direct click lagna lai */
+    }
+    .close-alert-btn:hover {
+        color: #f1f1f1;
+    }
+</style>
     </head>
 
     <body>
-      {% include 'nav.html' %} 
+        {% include 'nav.html' %} 
 
-      <div class="container">
-        
-
+        <!-- Flash Message Toast Container -->
+        <!-- Flash Message Notification Container -->
+<div class="toast-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="custom-alert-box" id="alert-box-{{ loop.index }}">
+                    <span>{{ message }}</span>
+                    <!-- Direct element hide garne clean inline JS -->
+                    <button type="button" class="close-alert-btn" onclick="document.getElementById('alert-box-{{ loop.index }}').style.display='none';">&times;</button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+        <div class="container">
             {% block contents %}
             {% endblock %}
         </div>
         
-        <script src="/static/js/bootstrap.min.js" ></script>
-        <script src="/static/js/main.js">  </script>
+        <script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
+        <script src="{{url_for('static', filename='js/main.js')}}"></script>
 
+        <!-- Toast Auto-hide JavaScript (3 seconds) -->
+        <script>
+            window.addEventListener('DOMContentLoaded', (event) => {
+                const toastBox = document.getElementById('custom-toast');
+                if (toastBox) {
+                    setTimeout(() => {
+                        hideToast();
+                    }, 3000);
+                }
+            });
+
+            function hideToast() {
+                const toastBox = document.getElementById('custom-toast');
+                if (toastBox) {
+                    toastBox.style.display = 'none';
+                }
+            }
+        </script>
     </body>
 </html>

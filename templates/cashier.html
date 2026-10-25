@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPDTM - Cashier Counter</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <style>html{scroll-behavior:smooth} section{scroll-margin-top:16px}</style>
+</head>
+<body>
+<div class="d-flex">
+    <nav id="sidebar">
+        <div class="sidebar-header d-flex align-items-center justify-content-between">
+            <span><i class="fa-solid fa-mug-hot me-2"></i>Quick Cafe</span>
+        </div>
+        <div class="nav-label mt-3">DASHBOARDS</div>
+        <ul class="list-unstyled mb-0">
+            <li class="active"><a href="{{ url_for('cashier') }}"><i class="fa-solid fa-cash-register me-2"></i>Cashier Counter</a></li>
+        </ul>
+        <hr class="dropdown-divider opacity-25">
+        <div class="nav-label">MENU</div>
+        <ul class="list-unstyled components">
+            <li class="active"><a href="#token"><i class="fa-solid fa-calculator me-2"></i>Token Generation</a></li>
+            <li><a href="#history"><i class="fa-solid fa-clock-rotate-left me-2"></i>Transaction History</a></li>
+            <li><a href="#verify"><i class="fa-solid fa-qrcode me-2"></i>Verify Digital Token</a></li>
+            <li><a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+        </ul>
+    </nav>
+
+    <div id="content" class="w-100">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4">
+            <div class="container-fluid">
+                <h4 class="mb-0 fw-bold text-dark">Cashier &amp; Digital Token Counter</h4>
+                <div class="d-flex align-items-center">
+                    <div class="me-3 text-end">
+                        <small class="text-muted d-block">Logged In User</small>
+                        <span class="fw-bold">{{ cashier_user.name }}</span>
+                    </div>
+                    <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width:40px;height:40px;">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid p-4">
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+              {% endfor %}
+            {% endwith %}
+
+            <!-- Today's stats -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4"><div class="card-counter success d-flex justify-content-between align-items-center"><div><span class="count-numbers">Rs. {{ "{:,.0f}".format(cash_today) }}</span><span class="count-name">Cash Today</span></div><i class="fa-solid fa-money-bill-wave text-success"></i></div></div>
+                <div class="col-md-4"><div class="card-counter primary d-flex justify-content-between align-items-center"><div><span class="count-numbers">Rs. {{ "{:,.0f}".format(digital_today) }}</span><span class="count-name">Digital / QR Today</span></div><i class="fa-solid fa-qrcode text-primary"></i></div></div>
+                <div class="col-md-4"><div class="card-counter warning d-flex justify-content-between align-items-center"><div><span class="count-numbers">{{ items_today }}</span><span class="count-name">Items Sold Today</span></div><i class="fa-solid fa-burger text-warning"></i></div></div>
+            </div>
+
+            <div class="row g-4 mb-4" id="token">
+                <!-- New order -->
+                <div class="col-lg-7">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-header bg-white py-3"><h5 class="mb-0 fw-bold"><i class="fa-solid fa-cash-register text-success me-2"></i>New Pre-Order &amp; Token Counter</h5></div>
+                        <div class="card-body">
+                            <form method="post" action="{{ url_for('cashier_create_order') }}" id="orderForm">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Student / Customer ID</label>
+                                    <input type="text" name="customer" class="form-control" maxlength="100" placeholder="Enter Roll No or ID (e.g. CSIT-101)" required>
+                                </div>
+
+                                <div class="mb-2">
+                                    <label class="form-label fw-bold">Select Order Items</label>
+                                    <div class="d-flex gap-2">
+                                        <select class="form-select" id="itemSelect">
+                                            {% for m in menu_items %}
+                                            <option value="{{ m.item_id }}" data-price="{{ m.price }}" data-name="{{ m.name }}">{{ m.name }} - Rs. {{ "{:,.0f}".format(m.price) }}</option>
+                                            {% else %}
+                                            <option value="">No items available</option>
+                                            {% endfor %}
+                                        </select>
+                                        <input type="number" class="form-control w-25" id="qtyInput" value="1" min="1" max="50">
+                                        <button type="button" class="btn btn-secondary" id="addBtn" {% if not menu_items %}disabled{% endif %}><i class="fa-solid fa-plus"></i></button>
+                                    </div>
+                                </div>
+
+                                <div class="table-responsive mb-3">
+                                    <table class="table table-sm align-middle mb-0">
+                                        <tbody id="cartBody"><tr><td class="text-muted text-center py-3">No items added yet.</td></tr></tbody>
+                                    </table>
+                                </div>
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-sm-7">
+                                        <label class="form-label fw-bold">Payment Mode</label>
+                                        <div class="d-flex gap-3">
+                                            <div class="form-check"><input class="form-check-input" type="radio" name="pay_mode" value="cash" id="cash" checked><label class="form-check-label" for="cash">Cash Counter</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="radio" name="pay_mode" value="digital" id="digital"><label class="form-check-label" for="digital">Digital Wallet / QR</label></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-5">
+                                        <label class="form-label fw-bold">Pickup Time</label>
+                                        <input type="time" name="pickup" class="form-control form-control-sm">
+                                        <div class="form-text">Leave empty for "Now".</div>
+                                    </div>
+                                </div>
+
+                                <div class="p-3 bg-light rounded mb-3">
+                                    <div class="d-flex justify-content-between mb-1"><span>Subtotal:</span><strong id="subtotal">Rs. 0.00</strong></div>
+                                    <div class="d-flex justify-content-between fs-5 text-success fw-bold"><span>Total Amount:</span><strong id="total">Rs. 0.00</strong></div>
+                                </div>
+
+                                <input type="hidden" name="items_json" id="itemsJson" value="[]">
+                                <button type="submit" class="btn btn-success w-100 py-2 fs-6 fw-bold" id="submitBtn" disabled><i class="fa-solid fa-ticket me-2"></i>Confirm Order &amp; Generate Digital Token</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent tokens -->
+                <div class="col-lg-5">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-header bg-white py-3"><h5 class="mb-0 fw-bold"><i class="fa-solid fa-receipt me-2"></i>Recently Issued Tokens</h5></div>
+                        <div class="card-body">
+                            <div class="list-group">
+                                {% for g in recent %}
+                                <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                    <div>
+                                        <a href="{{ url_for('view_token', token_id=g.number) }}" target="_blank" class="badge bg-primary token-badge text-decoration-none">{{ g.number }}</a>
+                                        <div class="small text-muted mt-1">{{ g.customer }} &middot; {% for t in g.lines %}{{ t.name }} (x{{ t.quantity }}){% if not loop.last %}, {% endif %}{% endfor %}</div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold small">Rs. {{ "{:,.0f}".format(g.total) }}</div>
+                                        {% if g.served %}<span class="badge bg-secondary">Served</span>{% else %}<span class="badge bg-success">Active</span>{% endif %}
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="text-muted text-center py-4">No tokens issued yet.</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Verify token -->
+            <section id="verify" class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3"><h5 class="mb-0 fw-bold"><i class="fa-solid fa-qrcode text-primary me-2"></i>Verify Digital Token</h5></div>
+                <div class="card-body">
+                    <form method="get" action="{{ url_for('cashier') }}#verify" class="d-flex gap-2 mb-3" style="max-width:420px">
+                        <input type="text" name="verify" class="form-control" placeholder="e.g. TKN-1234" value="{{ verify_q }}" required>
+                        <button class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </form>
+
+                    {% if verified is none %}
+                        {# nothing searched yet #}
+                    {% elif verified is sameas false %}
+                        <div class="alert alert-danger mb-0">Token <strong>{{ verify_q }}</strong> was not found.</div>
+                    {% else %}
+                        <div class="border rounded p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div><span class="badge bg-primary token-badge">{{ verified.number }}</span> <span class="ms-2">{{ verified.customer }}</span></div>
+                                {% if verified.served %}<span class="badge bg-secondary fs-6">Already Served</span>{% else %}<span class="badge bg-success fs-6">Valid</span>{% endif %}
+                            </div>
+                            <ul class="mb-2">
+                                {% for t in verified.lines %}<li>{{ t.quantity }}x {{ t.name }} &mdash; Rs. {{ "{:,.0f}".format(t.price * t.quantity) }}</li>{% endfor %}
+                            </ul>
+                            <div class="fw-bold mb-2">Total: Rs. {{ "{:,.0f}".format(verified.total) }}</div>
+                            {% if not verified.served %}
+                            <form method="post" action="{{ url_for('cashier_serve_token', token_number=verified.number) }}">
+                                <button class="btn btn-success btn-sm"><i class="fa-solid fa-check me-1"></i>Mark as Served</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Transaction history -->
+            <section id="history" class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3"><h5 class="mb-0 fw-bold"><i class="fa-solid fa-clock-rotate-left me-2"></i>Transaction History <small class="text-muted fw-normal">(last 50 tokens)</small></h5></div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light"><tr><th>Token</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th></tr></thead>
+                            <tbody>
+                                {% for g in history %}
+                                <tr>
+                                    <td><a href="{{ url_for('view_token', token_id=g.number) }}" target="_blank">{{ g.number }}</a></td>
+                                    <td>{{ g.customer }}</td>
+                                    <td>{% for t in g.lines %}{{ t.name }} (x{{ t.quantity }}){% if not loop.last %}, {% endif %}{% endfor %}</td>
+                                    <td>Rs. {{ "{:,.0f}".format(g.total) }}</td>
+                                    <td>{% if g.served %}<span class="badge bg-secondary">Served</span>{% else %}<span class="badge bg-success">Active</span>{% endif %}</td>
+                                </tr>
+                                {% else %}
+                                <tr><td colspan="5" class="text-center text-muted py-4">No transactions yet.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function () {
+  const cart = [];   // {item_id, name, price, qty}
+  const sel = document.getElementById('itemSelect');
+  const qtyInput = document.getElementById('qtyInput');
+  const body = document.getElementById('cartBody');
+  const fmt = n => 'Rs. ' + n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+  function render() {
+    body.innerHTML = '';
+    if (!cart.length) {
+      body.innerHTML = '<tr><td class="text-muted text-center py-3">No items added yet.</td></tr>';
+    }
+    let total = 0;
+    cart.forEach((c, i) => {
+      total += c.price * c.qty;
+      const tr = document.createElement('tr');
+      const name = document.createElement('td'); name.textContent = c.name;
+      const qty = document.createElement('td'); qty.textContent = 'x' + c.qty;
+      const sum = document.createElement('td'); sum.className = 'text-end'; sum.textContent = fmt(c.price * c.qty);
+      const act = document.createElement('td'); act.className = 'text-end';
+      const btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'btn btn-sm btn-outline-danger';
+      btn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+      btn.onclick = () => { cart.splice(i, 1); render(); };
+      act.appendChild(btn);
+      tr.append(name, qty, sum, act);
+      body.appendChild(tr);
+    });
+    document.getElementById('subtotal').textContent = fmt(total);
+    document.getElementById('total').textContent = fmt(total);
+    document.getElementById('itemsJson').value = JSON.stringify(cart.map(c => ({item_id: c.item_id, qty: c.qty})));
+    document.getElementById('submitBtn').disabled = cart.length === 0;
+  }
+
+  document.getElementById('addBtn').addEventListener('click', () => {
+    const opt = sel.options[sel.selectedIndex];
+    if (!opt || !opt.value) return;
+    const qty = Math.max(1, Math.min(50, parseInt(qtyInput.value) || 1));
+    const id = parseInt(opt.value);
+    const existing = cart.find(c => c.item_id === id);
+    if (existing) existing.qty = Math.min(50, existing.qty + qty);
+    else cart.push({item_id: id, name: opt.dataset.name, price: parseFloat(opt.dataset.price), qty});
+    qtyInput.value = 1;
+    render();
+  });
+})();
+</script>
+</body>
+</html>

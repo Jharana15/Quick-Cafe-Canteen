@@ -37,3 +37,23 @@ input,select{
     border-radius: 8px;
   box-sizing:border-box;
 }
+
+
+:root{--primary-color:#4e73df;--secondary-color:#858796;--success-color:#1cc88a;--info-color:#36b9cc;--warning-color:#f6c23e;--danger-color:#e74a3b;--dark-bg:#2c3e50}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background-color:#f8f9fc;overflow-x:hidden}
+#sidebar{min-width:250px;max-width:250px;background:var(--dark-bg);color:#fff;transition:all .3s;min-height:100vh}
+#sidebar .sidebar-header{padding:20px;background:rgba(0,0,0,.1);font-weight:bold;font-size:1.2rem}
+#sidebar ul.components{padding:20px 0}
+#sidebar ul li a{padding:12px 20px;font-size:1.05rem;display:block;color:rgba(255,255,255,.8);text-decoration:none;transition:.2s}
+#sidebar ul li a:hover,#sidebar ul li.active>a{color:#fff;background:rgba(255,255,255,.1);border-left:4px solid var(--primary-color)}
+#sidebar .nav-label{padding:8px 20px 0;font-size:.75rem;font-weight:bold;color:rgba(255,255,255,.5);letter-spacing:1px}
+.card-counter{box-shadow:0 4px 8px 0 rgba(0,0,0,.05);padding:20px;background-color:#fff;border-radius:10px;border-left:5px solid;transition:transform .2s}
+.card-counter:hover{transform:translateY(-3px)}
+.card-counter.primary{border-left-color:var(--primary-color)}
+.card-counter.success{border-left-color:var(--success-color)}
+.card-counter.warning{border-left-color:var(--warning-color)}
+.card-counter.info{border-left-color:var(--info-color)}
+.card-counter i{font-size:2.5em;opacity:.3}
+.card-counter .count-numbers{font-size:1.8em;font-weight:bold;display:block}
+.card-counter .count-name{font-size:.9em;color:#888;text-transform:uppercase}
+.token-badge{font-size:1.2rem;font-weight:bold;letter-spacing:1px}
