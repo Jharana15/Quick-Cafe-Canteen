@@ -5,6 +5,11 @@ from datetime import date, datetime, timedelta
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 import random
+import secrets
+import os
+import hmac
+import hashlib
+import base64
 import json
 import re
 
@@ -72,6 +77,21 @@ class Digital_token(db.Model):
     # kitchen workflow: Pending -> Preparing -> Ready -> Completed
     kitchen_status = db.Column(db.String(20), nullable=False, default='Pending', server_default='Pending')
     created_at = db.Column(db.DateTime, default=datetime.now)
+
+
+class PaymentRequest(db.Model):
+    """Customer says 'I have paid' -> waits here until the cashier verifies the money."""
+    __tablename__ = 'payment_request'
+    request_id = db.Column(db.Integer, primary_key=True)
+    public_id = db.Column(db.String(20), unique=True, nullable=False)   # used in the customer's URL
+    customer_name = db.Column(db.String(100), nullable=False)
+    items_json = db.Column(db.Text, nullable=False)       # [{item_id, name, price, qty}, ...]
+    total_amount = db.Column(db.Float, nullable=False)
+    reference = db.Column(db.String(60), nullable=False)  # eSewa / Khalti / FonePay transaction id
+    status = db.Column(db.String(20), nullable=False, default='Pending')  # Pending / Approved / Rejected
+    token_number = db.Column(db.String(50), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    reviewed_at = db.Column(db.DateTime, nullable=True)
 
 
 # ======================= ADMIN AUTH =======================
@@ -182,6 +202,61 @@ def admin_required(f):
     return wrapper
 
 
+def create_order_records(customer, lines, pay_status, pickup='Now'):
+    """lines = [{'item_id','name','price','qty'}]. Adds rows (caller commits). Returns (token_number, total)."""
+    while True:
+        token_number = f"TKN-{random.randint(1000, 9999)}"
+        if not Digital_token.query.filter_by(token_number=token_number).first():
+            break
+    total = 0.0
+    now = datetime.now()
+    for l in lines:
+        line_total = l['price'] * l['qty']
+        total += line_total
+        new_order = Order(name=customer, total_amount=line_total, pickup_slot=pickup,
+                          order_status=True, item_id=l['item_id'], is_deleted=False)
+        db.session.add(new_order)
+        db.session.flush()
+        db.session.add(Payment(Payment_amount=line_total, date_time=now,
+                               payment_status=pay_status, item_id=l['item_id'], is_deleted=False))
+        db.session.add(Digital_token(token_number=token_number, name=l['name'], price=l['price'],
+                                     quantity=l['qty'], is_available=True, item_id=l['item_id'],
+                                     order_id=new_order.order_id, is_deleted=False))
+    return token_number, total
+
+
+# ======================= eSewa (ePay v2) =======================
+# TEST mode by default. For real money, set your own merchant values as environment variables:
+#   ESEWA_FORM_URL=https://epay.esewa.com.np/api/epay/main/v2/form
+#   ESEWA_PRODUCT_CODE=<your merchant code>   ESEWA_SECRET=<your secret key>
+ESEWA_FORM_URL = os.environ.get('ESEWA_FORM_URL', 'https://rc-epay.esewa.com.np/api/epay/main/v2/form')
+ESEWA_PRODUCT_CODE = os.environ.get('ESEWA_PRODUCT_CODE', 'EPAYTEST')
+ESEWA_SECRET = os.environ.get('ESEWA_SECRET', '8gBm/:&EnhH.1/q')
+
+
+def esewa_sign(message):
+    digest = hmac.new(ESEWA_SECRET.encode(), message.encode(), hashlib.sha256).digest()
+    return base64.b64encode(digest).decode()
+
+
+def money(x):
+    x = float(x)
+    return str(int(x)) if x.is_integer() else f"{x:.2f}"
+
+
+def rebuild_order_lines(pending_order):
+    """Re-price the cart from the menu table. Returns (lines, total, error_message)."""
+    lines, total = [], 0.0
+    for it in pending_order['items']:
+        m = Menu.query.filter_by(name=it['name'], is_deleted=False, is_available=True).first()
+        if not m:
+            return None, 0, f"'{it['name']}' is no longer available. Please update your order."
+        qty = max(1, min(50, int(it['quantity'])))
+        lines.append({'item_id': m.item_id, 'name': m.name, 'price': m.price, 'qty': qty})
+        total += m.price * qty
+    return lines, total, None
+
+
 # ======================= PUBLIC PAGES =======================
 @app.route('/')
 @app.route('/home')
@@ -266,62 +341,153 @@ def payment_page():
     if not pending_order:
         flash("No pending order found.", "warning")
         return redirect(url_for('order'))
-    return render_template('payment.html', order=pending_order)
+    return render_template('payment.html', order=pending_order,
+                           esewa_test=(ESEWA_PRODUCT_CODE == 'EPAYTEST'))
 
 
 @app.route('/confirm_payment', methods=['POST'])
 def confirm_payment():
+    """'I have paid' -> NO token yet. Saves a pending request for the cashier to verify."""
     pending_order = session.get('pending_order')
     if not pending_order:
         flash("No active order to process.", "danger")
         return redirect(url_for('order'))
 
-    while True:
-        generated_token_number = f"TKN-{random.randint(1000, 9999)}"
-        if not Digital_token.query.filter_by(token_number=generated_token_number).first():
-            break
+    reference = request.form.get('reference', '').strip()
+    if not re.fullmatch(r'[A-Za-z0-9\-_/ ]{4,60}', reference):
+        flash("Enter the transaction / reference ID shown in your payment app (4-60 letters or numbers).", "danger")
+        return redirect(url_for('payment_page'))
 
-    with db.session.no_autoflush:
-        for item in pending_order['items']:
-            menu_item = Menu.query.filter_by(name=item['name']).first()
-            item_id = menu_item.item_id if menu_item else 1
+    # the same transaction id can't be used for two orders
+    if PaymentRequest.query.filter(func.lower(PaymentRequest.reference) == reference.lower(),
+                                   PaymentRequest.status.in_(['Pending', 'Approved'])).first():
+        flash("That transaction ID has already been used.", "danger")
+        return redirect(url_for('payment_page'))
 
-            new_order = Order(
-                name=pending_order['customer_name'],
-                total_amount=item['price'] * item['quantity'],
-                pickup_slot="10:00 AM",
-                order_status=True,
-                item_id=item_id,
-                is_deleted=False
-            )
-            db.session.add(new_order)
-            db.session.flush()
+    lines, total, error = rebuild_order_lines(pending_order)
+    if error:
+        flash(error, "danger")
+        return redirect(url_for('order'))
 
-            db.session.add(Payment(
-                Payment_amount=item['price'] * item['quantity'],
-                date_time=datetime.now(),
-                payment_status="Completed",
-                item_id=item_id,
-                is_deleted=False
-            ))
-
-            db.session.add(Digital_token(
-                token_number=generated_token_number,
-                name=item['name'],
-                price=item['price'],
-                quantity=item['quantity'],
-                is_available=True,
-                item_id=item_id,
-                order_id=new_order.order_id,
-                is_deleted=False
-            ))
-
+    req = PaymentRequest(public_id=secrets.token_urlsafe(8),
+                         customer_name=(pending_order.get('customer_name') or 'Customer')[:100],
+                         items_json=json.dumps(lines), total_amount=total,
+                         reference=reference, status='Pending')
+    db.session.add(req)
     db.session.commit()
+
     session.pop('current_order', None)
     session.pop('pending_order', None)
+    flash("Payment sent for verification. Your token will appear once the cashier confirms it.", "info")
+    return redirect(url_for('payment_status', public_id=req.public_id))
 
-    flash("Payment successful! Token generated.", "success")
-    return redirect(url_for('view_token', token_id=generated_token_number))
+
+@app.route('/esewa/start', methods=['POST'])
+def esewa_start():
+    """Send the customer to eSewa to pay. The token is created ONLY when eSewa confirms."""
+    pending_order = session.get('pending_order')
+    if not pending_order:
+        flash("No active order to pay for.", "danger")
+        return redirect(url_for('order'))
+
+    lines, total, error = rebuild_order_lines(pending_order)
+    if error:
+        flash(error, "danger")
+        return redirect(url_for('order'))
+
+    txn_uuid = 'QC' + secrets.token_hex(6)           # eSewa allows letters, digits and '-'
+    db.session.add(PaymentRequest(
+        public_id=secrets.token_urlsafe(8),
+        customer_name=(pending_order.get('customer_name') or 'Customer')[:100],
+        items_json=json.dumps(lines), total_amount=total,
+        reference=txn_uuid, status='Initiated'))
+    db.session.commit()
+    session['esewa_uuid'] = txn_uuid
+
+    amount = money(total)
+    fields = {
+        'amount': amount, 'tax_amount': '0', 'total_amount': amount,
+        'transaction_uuid': txn_uuid, 'product_code': ESEWA_PRODUCT_CODE,
+        'product_service_charge': '0', 'product_delivery_charge': '0',
+        'success_url': url_for('esewa_success', _external=True),
+        'failure_url': url_for('esewa_failure', _external=True),
+        'signed_field_names': 'total_amount,transaction_uuid,product_code',
+    }
+    fields['signature'] = esewa_sign(
+        f"total_amount={amount},transaction_uuid={txn_uuid},product_code={ESEWA_PRODUCT_CODE}")
+    return render_template('esewa_redirect.html', action=ESEWA_FORM_URL, fields=fields)
+
+
+@app.route('/esewa/success')
+def esewa_success():
+    """eSewa sends the customer back here with a SIGNED result. Only a valid one creates a token."""
+    raw = request.args.get('data', '')
+    try:
+        data = json.loads(base64.b64decode(raw + '=' * (-len(raw) % 4)).decode())
+    except Exception:
+        flash("Invalid payment response.", "danger")
+        return redirect(url_for('order'))
+
+    # 1. the signature must be valid (only eSewa knows the secret key)
+    names = [n for n in str(data.get('signed_field_names', '')).split(',') if n]
+    message = ','.join(f"{n}={data.get(n, '')}" for n in names)
+    if (not {'transaction_uuid', 'status', 'total_amount'} <= set(names)
+            or not hmac.compare_digest(esewa_sign(message), str(data.get('signature', '')))):
+        flash("Payment could not be verified (bad signature). No token was generated.", "danger")
+        return redirect(url_for('order'))
+
+    # 2. it must match the order we started
+    req = PaymentRequest.query.filter_by(reference=str(data.get('transaction_uuid', ''))).first()
+    try:
+        paid = float(str(data.get('total_amount', '0')).replace(',', ''))
+    except ValueError:
+        paid = -1
+    if (not req or data.get('status') != 'COMPLETE'
+            or data.get('product_code') != ESEWA_PRODUCT_CODE
+            or abs(paid - req.total_amount) > 0.01):
+        flash("Payment was not completed. No token was generated.", "danger")
+        return redirect(url_for('order'))
+
+    # 3. already processed (page refreshed)? just show the token again
+    if req.status == 'Approved' and req.token_number:
+        return redirect(url_for('view_token', token_id=req.token_number))
+    if req.status != 'Initiated':
+        flash("This payment cannot be used.", "danger")
+        return redirect(url_for('order'))
+
+    # 4. money confirmed -> NOW create order, payment and token
+    token_number, total = create_order_records(req.customer_name, json.loads(req.items_json), 'Completed')
+    req.status = 'Approved'
+    req.token_number = token_number
+    req.reviewed_at = datetime.now()
+    db.session.commit()
+
+    session.pop('current_order', None)
+    session.pop('pending_order', None)
+    session.pop('esewa_uuid', None)
+    flash(f"Payment successful (eSewa ref {data.get('transaction_code', '-')}). Here is your token!", "success")
+    return redirect(url_for('view_token', token_id=token_number))
+
+
+@app.route('/esewa/failure')
+def esewa_failure():
+    txn_uuid = session.pop('esewa_uuid', None)
+    if txn_uuid:
+        req = PaymentRequest.query.filter_by(reference=txn_uuid, status='Initiated').first()
+        if req:
+            req.status = 'Failed'
+            db.session.commit()
+    flash("eSewa payment was cancelled or failed. No token was generated.", "danger")
+    return redirect(url_for('payment_page'))
+
+
+@app.route('/payment_status/<public_id>')
+def payment_status(public_id):
+    req = PaymentRequest.query.filter_by(public_id=public_id).first_or_404()
+    if req.status == 'Approved' and req.token_number:
+        flash("Payment verified! Here is your token.", "success")
+        return redirect(url_for('view_token', token_id=req.token_number))
+    return render_template('payment_status.html', req=req, items=json.loads(req.items_json))
 
 
 @app.route('/digital_token/<token_id>')
@@ -501,6 +667,12 @@ def cashier():
         .order_by(Menu.name).all()
     history = build_token_groups(latest_token_numbers(50))
 
+    pending_requests = []
+    for r in PaymentRequest.query.filter_by(status='Pending').order_by(PaymentRequest.created_at).all():
+        pending_requests.append({'id': r.request_id, 'customer': r.customer_name,
+                                 'items': json.loads(r.items_json), 'total': r.total_amount,
+                                 'reference': r.reference, 'created': r.created_at})
+
     verify_q = request.args.get('verify', '').strip().upper()
     verified = None
     if verify_q:
@@ -510,7 +682,7 @@ def cashier():
     return render_template('cashier.html', cashier_user=user,
         menu_items=menu_items, recent=history[:6], history=history,
         cash_today=cash_today, digital_today=digital_today, items_today=items_today,
-        verify_q=verify_q, verified=verified)
+        verify_q=verify_q, verified=verified, pending_requests=pending_requests)
 
 
 @app.route('/cashier/create_order', methods=['POST'])
@@ -548,29 +720,9 @@ def cashier_create_order():
         flash("One or more items are no longer available. Please check the order.", "danger")
         return redirect(url_for('cashier'))
 
-    # unique token number
-    while True:
-        token_number = f"TKN-{random.randint(1000, 9999)}"
-        if not Digital_token.query.filter_by(token_number=token_number).first():
-            break
-
-    total = 0.0
-    now = datetime.now()
-    for m in menu_rows:
-        qty = wanted[m.item_id]
-        line_total = m.price * qty
-        total += line_total
-
-        new_order = Order(name=customer, total_amount=line_total, pickup_slot=pickup,
-                          order_status=True, item_id=m.item_id, is_deleted=False)
-        db.session.add(new_order)
-        db.session.flush()
-
-        db.session.add(Payment(Payment_amount=line_total, date_time=now,
-                               payment_status=pay_mode, item_id=m.item_id, is_deleted=False))
-        db.session.add(Digital_token(token_number=token_number, name=m.name, price=m.price,
-                                     quantity=qty, is_available=True, item_id=m.item_id,
-                                     order_id=new_order.order_id, is_deleted=False))
+    lines = [{'item_id': m.item_id, 'name': m.name, 'price': m.price, 'qty': wanted[m.item_id]}
+             for m in menu_rows]
+    token_number, total = create_order_records(customer, lines, pay_mode, pickup)
     db.session.commit()
 
     flash(f"Token {token_number} issued for {customer} - Rs. {total:,.0f} ({pay_mode}).", "success")
@@ -590,6 +742,39 @@ def cashier_serve_token(token_number):
     db.session.commit()
     flash(f"Token {token_number} marked as served.", "success")
     return redirect(url_for('cashier', verify=token_number) + '#verify')
+
+
+@app.route('/cashier/payment/<int:rid>/approve', methods=['POST'])
+@role_required('cashier')
+def cashier_approve_payment(rid):
+    req = db.get_or_404(PaymentRequest, rid)
+    if req.status != 'Pending':
+        flash("That payment was already handled.", "warning")
+        return redirect(url_for('cashier') + '#payments')
+
+    lines = json.loads(req.items_json)
+    token_number, total = create_order_records(req.customer_name, lines, 'Completed')
+    req.status = 'Approved'
+    req.token_number = token_number
+    req.reviewed_at = datetime.now()
+    db.session.commit()
+
+    flash(f"Payment approved. Token {token_number} issued for {req.customer_name} - Rs. {total:,.0f}.", "success")
+    return redirect(url_for('cashier') + '#payments')
+
+
+@app.route('/cashier/payment/<int:rid>/reject', methods=['POST'])
+@role_required('cashier')
+def cashier_reject_payment(rid):
+    req = db.get_or_404(PaymentRequest, rid)
+    if req.status != 'Pending':
+        flash("That payment was already handled.", "warning")
+    else:
+        req.status = 'Rejected'
+        req.reviewed_at = datetime.now()
+        db.session.commit()
+        flash(f"Payment from {req.customer_name} rejected.", "warning")
+    return redirect(url_for('cashier') + '#payments')
 
 
 # ======================= KITCHEN STAFF =======================

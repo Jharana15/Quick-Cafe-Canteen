@@ -52,10 +52,14 @@
     </head>
 
     <body>
-        {% include 'nav.html' %} 
-
+        
+<body>
+        <!-- Hide navbar if current endpoint is 'login' OR 'signup' -->
+        {% if request.endpoint != 'login' and request.endpoint != 'signup' %}
+            {% include 'nav.html' %} 
+        {% endif %}    
         <!-- Flash Message Toast Container -->
-        <!-- Flash Message Notification Container -->
+       
 <div class="toast-container">
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
